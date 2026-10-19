@@ -75,14 +75,15 @@ Unenriched leads score only on public rating data. The optional opener line come
 | `LIE_FETCHER` | `httpx` | `httpx` or `crawl4ai` (`pip install -e ".[crawl4ai]"`) for JS-rendered sites |
 | `LIE_DEFAULT_REGION` | `US` | Phone parsing region |
 | `GOOGLE_PLACES_API_KEY` | none | Enables `--source places` |
-| `ANTHROPIC_API_KEY`, `LIE_ANTHROPIC_MODEL` | none | Real opener lines |
+| `ANTHROPIC_API_KEY`, `LIE_ANTHROPIC_MODEL` | none, `claude-haiku-4-5` | Real opener lines |
 
 ## Ethics and compliance
 
 This tool builds lead lists. You are responsible for how you use them.
 
-- **robots.txt**: fetched once per origin and honored for every page. `401/403` on robots.txt means no crawling that site; a missing file means allowed.
+- **robots.txt**: fetched once per origin and honored for every page. `401/403/5xx` on robots.txt means no crawling that site; a missing file means allowed. `Crawl-delay` is honored when longer than `LIE_DOMAIN_DELAY`.
 - **Rate limits**: one request per `LIE_DOMAIN_DELAY` seconds per host, a global concurrency cap, timeouts, and backoff. Only the homepage and one contact page are fetched.
+- **SSRF guard**: only `http(s)` URLs whose host resolves to public IPs are fetched; redirects are followed manually (max 5) and each hop is re-checked.
 - **Public pages only**: no logins, no paywalls, no CAPTCHA bypass, no scraping behind authentication.
 - **Honest identification**: a real User-Agent with a contact URL; no spoofing.
 - **Cold email (CAN-SPAM)**: use accurate headers and subject lines, identify the message as an ad, include a physical address and a working opt-out, honor opt-outs within 10 business days. Outside the US (GDPR, CASL, PECR) rules are stricter, and B2B exemptions vary. Get advice before sending at scale.

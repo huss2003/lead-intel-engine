@@ -1,7 +1,7 @@
 import httpx
 from conftest import FIX
 
-from lie.enrich.fetcher import HttpFetcher
+from lie.enrich.fetcher import HttpFetcher, is_public_url
 
 ROBOTS = (FIX / "robots_blocking.txt").read_text()
 
@@ -12,7 +12,16 @@ def make(handler, **kw) -> tuple[HttpFetcher, list[float]]:
     async def fake_sleep(t):
         sleeps.append(t)
 
-    f = HttpFetcher("TestBot/1.0", transport=httpx.MockTransport(handler), sleep=fake_sleep, **kw)
+    async def public(host):
+        return ["10.0.0.1"] if host.startswith("internal") else ["93.184.216.34"]
+
+    f = HttpFetcher(
+        "TestBot/1.0",
+        transport=httpx.MockTransport(handler),
+        sleep=fake_sleep,
+        resolve=public,
+        **kw,
+    )
     return f, sleeps
 
 
@@ -86,3 +95,52 @@ async def test_non_html_ignored():
 
     f, _ = make(h, domain_delay=0)
     assert await f.fetch("https://a.test/x.pdf") is None
+
+
+async def test_ssrf_blocks_private_schemes_and_redirects():
+    async def res(host):
+        return ["127.0.0.1"]
+
+    for u in (
+        "http://127.0.0.1/",
+        "http://169.254.169.254/",
+        "file:///etc/passwd",
+        "http://[::1]/",
+    ):
+        assert not await is_public_url(u)
+    assert not await is_public_url("http://localhost.test/", res)
+    seen = []
+
+    def h(req):
+        seen.append(str(req.url))
+        if req.url.path == "/robots.txt":
+            return httpx.Response(404)
+        return httpx.Response(302, headers={"location": "http://internal.test/admin"})
+
+    f, _ = make(h, domain_delay=0)
+    assert await f.fetch("https://a.test/") is None
+    assert not any("internal" in u for u in seen)
+
+
+async def test_follows_public_redirect():
+    def h(req):
+        if req.url.path == "/robots.txt":
+            return httpx.Response(404)
+        if req.url.path == "/":
+            return httpx.Response(301, headers={"location": "/home"})
+        return ok()
+
+    f, _ = make(h, domain_delay=0)
+    assert await f.fetch("https://a.test/") == "<html>hi</html>"
+
+
+async def test_crawl_delay_honored():
+    def h(req):
+        if req.url.path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nCrawl-delay: 9\n")
+        return ok()
+
+    f, sleeps = make(h, domain_delay=1)
+    await f.fetch("https://a.test/1")
+    await f.fetch("https://a.test/2")
+    assert any(5 < s <= 9 for s in sleeps)
