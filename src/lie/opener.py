@@ -40,8 +40,15 @@ class MockOpener:
 class AnthropicOpener:
     """One-line cold-email opener via the Anthropic Messages API."""
 
-    def __init__(self, key: str, model: str, client: httpx.AsyncClient | None = None):
+    def __init__(
+        self,
+        key: str,
+        model: str,
+        client: httpx.AsyncClient | None = None,
+        base_url: str = "https://api.anthropic.com",
+    ):
         self.key, self.model, self.client = key, model, client
+        self.base_url = base_url.rstrip("/")
 
     async def generate(self, b: Business, e: Enrichment | None, s: Score) -> str:
         prompt = (
@@ -53,7 +60,7 @@ class AnthropicOpener:
         client = self.client or httpx.AsyncClient(timeout=30)
         try:
             r = await client.post(
-                "https://api.anthropic.com/v1/messages",
+                f"{self.base_url}/v1/messages",
                 headers={"x-api-key": self.key, "anthropic-version": "2023-06-01"},
                 json={
                     "model": self.model,
@@ -73,4 +80,6 @@ def make_opener(settings: Settings, enabled: bool) -> OpenerGenerator | None:
         return None
     if settings.demo_mode or not settings.anthropic_key:
         return MockOpener()
-    return AnthropicOpener(settings.anthropic_key, settings.anthropic_model)
+    return AnthropicOpener(
+        settings.anthropic_key, settings.anthropic_model, base_url=settings.anthropic_base_url
+    )

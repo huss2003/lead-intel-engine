@@ -76,6 +76,7 @@ Unenriched leads score only on public rating data. The optional opener line come
 | `LIE_DEFAULT_REGION` | `US` | Phone parsing region |
 | `GOOGLE_PLACES_API_KEY` | none | Enables `--source places` |
 | `ANTHROPIC_API_KEY`, `LIE_ANTHROPIC_MODEL` | none, `claude-haiku-4-5` | Real opener lines |
+| `ANTHROPIC_BASE_URL` | `https://api.anthropic.com` | Anthropic-compatible endpoint (e.g. local llama.cpp) |
 
 ## Ethics and compliance
 

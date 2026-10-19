@@ -22,6 +22,7 @@ class Settings(BaseModel):
     places_key: str | None = None
     anthropic_key: str | None = None
     anthropic_model: str = "claude-haiku-4-5"
+    anthropic_base_url: str = "https://api.anthropic.com"
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -39,4 +40,5 @@ class Settings(BaseModel):
             places_key=e("GOOGLE_PLACES_API_KEY") or None,
             anthropic_key=e("ANTHROPIC_API_KEY") or None,
             anthropic_model=e("LIE_ANTHROPIC_MODEL", "claude-haiku-4-5"),
+            anthropic_base_url=e("ANTHROPIC_BASE_URL") or "https://api.anthropic.com",
         )
