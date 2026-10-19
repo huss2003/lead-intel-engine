@@ -1,0 +1,8 @@
+[
+  {"name": "Dallas Cool HVAC", "website": "https://www.dallas-cool-hvac.test", "phone": "(214) 555-0142", "address": "1200 Elm St, Dallas, TX", "rating": 4.7, "reviews": 212, "niche": "hvac"},
+  {"name": "Lone Star Air & Heat", "website": "https://lonestarair.test", "phone": "(214) 555-0177", "address": "88 Commerce St, Dallas, TX", "rating": 4.8, "reviews": 540, "niche": "hvac"},
+  {"name": "Metro Comfort Heating", "website": "https://metrocomfort.test", "phone": "214-555-0199", "address": "410 Main St, Dallas, TX", "rating": 4.2, "reviews": 64, "niche": "hvac"},
+  {"name": "Dallas Cool Heating and Air", "website": "dallas-cool-hvac.test", "phone": "+1 214 555 0142", "address": "1200 Elm Street, Dallas, TX", "rating": 4.6, "reviews": 230, "niche": "hvac"},
+  {"name": "Bluebonnet Plumbing", "website": "https://bluebonnetplumbing.test", "phone": "214-555-0111", "rating": 4.5, "reviews": 90, "niche": "plumbing"},
+  {"name": "Pop-up AC Repair", "website": null, "phone": "214-555-0123", "rating": 3.1, "reviews": 4, "niche": "hvac"}
+]
