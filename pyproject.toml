@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "lead-intel-engine"
+version = "0.1.0"
+description = "Find local businesses, enrich them from their websites, score them as AI-receptionist prospects, export a lead list."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "Hussain", email = "flutterflow53@gmail.com" }]
+dependencies = [
+  "typer>=0.12",
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+  "pydantic>=2.6",
+  "httpx>=0.27",
+  "selectolax>=1.0",
+  "phonenumbers>=8.13",
+  "sqlmodel>=0.0.16",
+]
+
+[project.optional-dependencies]
+crawl4ai = ["crawl4ai>=0.4"]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.5"]
+
+[project.scripts]
+lie = "lie.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lie"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["typer.Option", "typer.Argument"]
