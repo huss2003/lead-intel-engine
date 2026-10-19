@@ -21,7 +21,7 @@ class Settings(BaseModel):
     default_region: str = "US"
     places_key: str | None = None
     anthropic_key: str | None = None
-    anthropic_model: str = "claude-sonnet-4-5"
+    anthropic_model: str = "claude-haiku-4-5"
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -38,5 +38,5 @@ class Settings(BaseModel):
             default_region=e("LIE_DEFAULT_REGION", "US"),
             places_key=e("GOOGLE_PLACES_API_KEY") or None,
             anthropic_key=e("ANTHROPIC_API_KEY") or None,
-            anthropic_model=e("LIE_ANTHROPIC_MODEL", "claude-sonnet-4-5"),
+            anthropic_model=e("LIE_ANTHROPIC_MODEL", "claude-haiku-4-5"),
         )

@@ -43,3 +43,11 @@ def test_contact_url_same_site_only():
     assert contact_url(html("hvac_home.html"), base) == "https://x.test/contact-us"
     off = '<a href="https://other.test/contact">Contact</a>'
     assert contact_url(off, base) is None
+
+
+def test_email_false_positives_filtered():
+    page = (
+        '<html><body><a href="mailto:Info%40shop.test?subject=hi">x</a>'
+        '<a href="mailto:not-an-email">y</a><p>logo@2x.png icon@3x.webp</p></body></html>'
+    )
+    assert extract({"https://s.test/": page}).emails == ["info@shop.test"]

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from urllib.parse import urljoin, urlparse
+from urllib.parse import unquote, urljoin, urlparse
 
 import phonenumbers
 from selectolax.lexbor import LexborHTMLParser as HTMLParser
@@ -9,7 +9,9 @@ from selectolax.lexbor import LexborHTMLParser as HTMLParser
 from ..models import Enrichment
 
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")
-JUNK_EMAIL = re.compile(r"\.(png|jpe?g|gif|svg|webp)$|^(sentry|noreply|no-reply|example)@", re.I)
+JUNK_EMAIL = re.compile(
+    r"\.(png|jpe?g|gif|svg|webp|avif|bmp|ico|css|js)$|^(sentry|noreply|no-reply|example)@", re.I
+)
 SOCIALS = {
     "facebook.com": "facebook",
     "instagram.com": "instagram",
@@ -98,7 +100,9 @@ def extract(pages: dict[str, str], region: str = "US") -> Enrichment:
         for a in tree.css("a[href]"):
             href = (a.attributes.get("href") or "").strip()
             if href.lower().startswith("mailto:"):
-                emails.add(href[7:].split("?")[0].strip().lower())
+                addr = unquote(href[7:].split("?")[0]).strip().lower()
+                if EMAIL_RE.fullmatch(addr):
+                    emails.add(addr)
             elif href.lower().startswith("tel:"):
                 _add_phone(phones, href[4:], region)
             else:
